@@ -171,14 +171,12 @@ window.addEventListener("DOMContentLoaded", () => {
 /*!**********************!*\
   !*** ./src/build.ts ***!
   \**********************/
-/*! exports provided: buildGround, buildBox, buildRoof */
+/*! exports provided: buildDwellings */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "buildGround", function() { return buildGround; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "buildBox", function() { return buildBox; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "buildRoof", function() { return buildRoof; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "buildDwellings", function() { return buildDwellings; });
 /******Build Functions***********/
 const buildGround = (scene) => {
     //color
@@ -186,28 +184,98 @@ const buildGround = (scene) => {
     // groundMat.diffuseColor = new BABYLON.Color3(0, 1, 0);
     //texture
     groundMat.diffuseTexture = new BABYLON.Texture('https://www.babylonjs-playground.com/textures/grass.png', scene);
-    const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
+    /**** World Objects *****/
+    const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 15, height: 16 });
     ground.material = groundMat;
 };
-const buildBox = (scene, options = {}) => {
+const buildHouse = (width, scene) => {
+    const box = buildBox(width, scene);
+    const roof = buildRoof(width, scene);
+    return BABYLON.Mesh.MergeMeshes([box, roof], true, false, null, false, true);
+};
+const buildBox = (width, scene) => {
     //texture
     const boxMat = new BABYLON.StandardMaterial("boxMat", scene);
-    boxMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/cubehouse.png", scene);
+    if (width == 2) {
+        boxMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/semihouse.png", scene);
+    }
+    else {
+        boxMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/cubehouse.png", scene);
+    }
+    //options parameter to set different images on each side
+    const faceUV = [];
+    if (width == 2) {
+        faceUV[0] = new BABYLON.Vector4(0.6, 0.0, 1.0, 1.0); //rear face
+        faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 0.4, 1.0); //front face
+        faceUV[2] = new BABYLON.Vector4(0.4, 0, 0.6, 1.0); //right side
+        faceUV[3] = new BABYLON.Vector4(0.4, 0, 0.6, 1.0); //left side
+    }
+    else {
+        faceUV[0] = new BABYLON.Vector4(0.5, 0.0, 0.75, 1.0); //rear face
+        faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 0.25, 1.0); //front face
+        faceUV[2] = new BABYLON.Vector4(0.25, 0, 0.5, 1.0); //right side
+        faceUV[3] = new BABYLON.Vector4(0.75, 0, 1.0, 1.0); //left side
+    }
+    // top 4 and bottom 5 not seen so not set
     /**** World Objects *****/
-    const box = BABYLON.MeshBuilder.CreateBox("box", options);
+    const box = BABYLON.MeshBuilder.CreateBox("box", { width: width, faceUV: faceUV, wrap: true });
     box.material = boxMat;
+    box.position.y = 0.5;
     return box;
 };
-const buildRoof = (scene) => {
+const buildRoof = (width, scene) => {
     //texture
     const roofMat = new BABYLON.StandardMaterial("roofMat", scene);
     roofMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/roof.jpg", scene);
     const roof = BABYLON.MeshBuilder.CreateCylinder("roof", { diameter: 1.3, height: 1.2, tessellation: 3 });
     roof.material = roofMat;
     roof.scaling.x = 0.75;
+    roof.scaling.y = width;
     roof.rotation.z = Math.PI / 2;
     roof.position.y = 1.22;
     return roof;
+};
+const buildDwellings = (scene) => {
+    const ground = buildGround(scene);
+    const detached_house = buildHouse(1, scene);
+    detached_house.rotation.y = -Math.PI / 16;
+    detached_house.position.x = -6.8;
+    detached_house.position.z = 2.5;
+    const semi_house = buildHouse(2, scene);
+    semi_house.rotation.y = -Math.PI / 16;
+    semi_house.position.x = -4.5;
+    semi_house.position.z = 3;
+    const places = []; //each entry is an array [house type, rotation, x, z]
+    places.push([1, -Math.PI / 16, -6.8, 2.5]);
+    places.push([2, -Math.PI / 16, -4.5, 3]);
+    places.push([2, -Math.PI / 16, -1.5, 4]);
+    places.push([2, -Math.PI / 3, 1.5, 6]);
+    places.push([2, 15 * Math.PI / 16, -6.4, -1.5]);
+    places.push([1, 15 * Math.PI / 16, -4.1, -1]);
+    places.push([2, 15 * Math.PI / 16, -2.1, -0.5]);
+    places.push([1, 5 * Math.PI / 4, 0, -1]);
+    places.push([1, Math.PI + Math.PI / 2.5, 0.5, -3]);
+    places.push([2, Math.PI + Math.PI / 2.1, 0.75, -5]);
+    places.push([1, Math.PI + Math.PI / 2.25, 0.75, -7]);
+    places.push([2, Math.PI / 1.9, 4.75, -1]);
+    places.push([1, Math.PI / 1.95, 4.5, -3]);
+    places.push([2, Math.PI / 1.9, 4.75, -5]);
+    places.push([1, Math.PI / 1.9, 4.75, -7]);
+    places.push([2, -Math.PI / 3, 5.25, 2]);
+    places.push([1, -Math.PI / 3, 6, 4]);
+    //Create instances from the first two that were built
+    const houses = [];
+    for (let i = 0; i < places.length; i++) {
+        if (places[i][0] === 1) {
+            houses[i] = detached_house.createInstance("house" + i);
+        }
+        else {
+            houses[i] = semi_house.createInstance("house" + i);
+        }
+        houses[i].rotation.y = places[i][1];
+        houses[i].position.x = places[i][2];
+        houses[i].position.z = places[i][3];
+    }
 };
 
 
@@ -241,24 +309,7 @@ class MyScene {
         this._arcCamera = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["ArcRotateCamera"]("camera", -Math.PI / 2, Math.PI / 2.5, 15, new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 0, 0), this._scene);
         this._arcCamera.attachControl(this._canvas, true);
         this._light = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HemisphericLight"]("light", new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1, 1, 0), this._scene);
-        //options parameter to set different images on each side for box
-        const faceUV1 = [];
-        faceUV1[0] = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector4"](0.5, 0.0, 0.75, 1.0); //rear face
-        faceUV1[1] = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector4"](0.0, 0.0, 0.25, 1.0); //front face
-        faceUV1[2] = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector4"](0.25, 0, 0.5, 1.0); //right side
-        faceUV1[3] = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector4"](0.75, 0, 1.0, 1.0); //left side
-        // top 4 and bottom 5 not seen so not set
-        //options parameter to set different images on each side
-        const faceUV2 = [];
-        faceUV2[0] = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector4"](0.6, 0.0, 1.0, 1.0); //rear face
-        faceUV2[1] = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector4"](0.0, 0.0, 0.4, 1.0); //front face
-        faceUV2[2] = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector4"](0.4, 0, 0.6, 1.0); //right side
-        faceUV2[3] = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector4"](0.4, 0, 0.6, 1.0); //left side
-        // top 4 and bottom 5 not seen so not set
-        const ground = Object(_build__WEBPACK_IMPORTED_MODULE_1__["buildGround"])(this._scene);
-        const box1 = Object(_build__WEBPACK_IMPORTED_MODULE_1__["buildBox"])(this._scene, { faceUV: faceUV1, wrap: true });
-        box1.position.y = 0.5;
-        const roof = Object(_build__WEBPACK_IMPORTED_MODULE_1__["buildRoof"])(this._scene);
+        Object(_build__WEBPACK_IMPORTED_MODULE_1__["buildDwellings"])(this._scene);
     }
     doRender() {
         // Run the render loop.

@@ -2,13 +2,13 @@
   "compileOnSave": true,
   "compilerOptions": {
     "target": "esnext",
-    "module": "ESNext",
+    "module": "esnext",
     "sourceMap": true,
     "outDir": "./dist",
     "types": [
       "babylonjs",
       "babylonjs-gui",
-      "babylonjs-materials"
+      "babylonjs-materials",
     ]
   },
   "include": [

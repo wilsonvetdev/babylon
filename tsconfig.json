@@ -1,15 +1,15 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "target": "es5",              
-    "module": "es2015",  
-    "sourceMap": true,    
-    "outDir": "./dist", 
+    "target": "esnext",
+    "module": "ESNext",
+    "sourceMap": true,
+    "outDir": "./dist",
     "types": [
       "babylonjs",
       "babylonjs-gui",
       "babylonjs-materials"
-    ]                     
+    ]
   },
   "include": [
     "src/**/*"
